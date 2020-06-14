@@ -183,12 +183,21 @@ img1 = getSourceImage("images/I1.png")
 img2 = getSourceImage("images/I2.jpg")
 
 img3 = getSourceImage("images/J1.png")
+img4 = getSourceImage("images/J2.jpg")
 
+'''
 raveledX = np.ravel(img1[:,:,0])
-#raveledY = np.ravel(img2)
-
 raveledY = np.ravel(img3)
+'''
 
-print(raveledY.shape)
+raveledX = np.ravel(img2)
+raveledY = np.ravel(img4)
+
+
+print(raveledX.shape, raveledY.shape)
 jh = JointHist(raveledX,raveledY,50)
-plt.imshow(jh[0])
+#jh = np.histogram2d(raveledX,raveledY,50)
+plt.imshow(np.log(jh[0]))
+
+cbar = plt.colorbar()
+cbar.ax.set_ylabel('Color')
