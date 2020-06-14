@@ -31,7 +31,7 @@ import matplotlib.image as mpimg
 
 _range = range
 
-def JointHist(I, J, bins=10, range=None, weights=None):
+def JointHist(I, J, bins=10):
 
     try:
         N = len(bins)
@@ -42,10 +42,10 @@ def JointHist(I, J, bins=10, range=None, weights=None):
         xedges = yedges = asarray(bins)
         bins = [xedges, yedges]
         
-    hist, edges = histogramddErnie([I, J], bins, range, weights)
+    hist, edges = histogramddErnie([I, J], bins)
     return hist, edges[0], edges[1]
 
-def histogramddErnie(sample, bins=10, range=None,  weights=None):
+def histogramddErnie(sample, bins=10):
     try:
         # Sample is an ND-array.
         N, D = sample.shape
@@ -54,13 +54,19 @@ def histogramddErnie(sample, bins=10, range=None,  weights=None):
         # Sample is a sequence of 1D arrays.
         sample = np.atleast_2d(sample).T
         N, D = sample.shape
-        
-    #print(N,D)
+
+    print("=======1========")        
+    print(N,D)
+    print("===============")
     nbin = np.empty(D, int)
+    print(nbin)    
+    print("===============")
     edges = D*[None]
+    
     dedges = D*[None]
-    if weights is not None:
-        weights = np.asarray(weights)
+    print(dedges)    
+    print("==========2=====")
+
 
     try:
         M = len(bins)
@@ -71,20 +77,14 @@ def histogramddErnie(sample, bins=10, range=None,  weights=None):
     except TypeError:
         # bins is an integer
         bins = D*[bins]
-
-    # normalize the range argument
-    if range is None:
-        range = (None,) * D
-    elif len(range) != D:
-        raise ValueError('range argument must have one entry per dimension')
-
+    
     # Create edge arrays
     for i in _range(D):
         if np.ndim(bins[i]) == 0:
             if bins[i] < 1:
                 raise ValueError(
                     '`bins[{}]` must be positive, when an integer'.format(i))
-            smin, smax = get_outer_edges(sample[:,i], range[i])
+            smin, smax = get_outer_edges(sample[:,i], None)
             edges[i] = np.linspace(smin, smax, bins[i] + 1)
         elif np.ndim(bins[i]) == 1:
             edges[i] = np.asarray(bins[i])
@@ -121,7 +121,7 @@ def histogramddErnie(sample, bins=10, range=None,  weights=None):
 
     # Compute the number of repetitions in xy and assign it to the
     # flattened histmat.
-    hist = np.bincount(xy, weights, minlength=nbin.prod())
+    hist = np.bincount(xy, None, minlength=nbin.prod())
 
     # Shape into a proper matrix
     hist = hist.reshape(nbin)
@@ -165,7 +165,9 @@ def get_outer_edges(a, range):
     if first_edge == last_edge:
         first_edge = first_edge - 0.5
         last_edge = last_edge + 0.5
-
+    print("++++++++++++++")
+    print(a, first_edge, last_edge)
+    print("++++++++++++++++++++++++++++")
     return first_edge, last_edge
 
 
@@ -185,14 +187,14 @@ img2 = getSourceImage("images/I2.jpg")
 img3 = getSourceImage("images/J1.png")
 img4 = getSourceImage("images/J2.jpg")
 
-'''
+
 raveledX = np.ravel(img1[:,:,0])
 raveledY = np.ravel(img3)
 '''
 
 raveledX = np.ravel(img2)
 raveledY = np.ravel(img4)
-
+'''
 
 print(raveledX.shape, raveledY.shape)
 jh = JointHist(raveledX,raveledY,50)
