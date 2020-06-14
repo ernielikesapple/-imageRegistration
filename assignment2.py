@@ -46,40 +46,13 @@ def JointHist(I, J, bins=10):
     return hist, edges[0], edges[1]
 
 def histogramddErnie(sample, bins=10):
-    try:
-        # Sample is an ND-array.
-        N, D = sample.shape
-        print(N,D)
-    except (AttributeError, ValueError):
-        # Sample is a sequence of 1D arrays.
-        sample = np.atleast_2d(sample).T
-        N, D = sample.shape
-
-    print("=======1========")        
-    print(N,D)
-    print("===============")
-    nbin = np.empty(D, int)
-    print(nbin)    
-    print("===============")
-    edges = D*[None]
-    
-    dedges = D*[None]
-    print(dedges)    
-    print("==========2=====")
-
-
-    try:
-        M = len(bins)
-        if M != D:
-            raise ValueError(
-                'The dimension of bins must be equal to the dimension of the '
-                ' sample x.')
-    except TypeError:
-        # bins is an integer
-        bins = D*[bins]
+    sample = np.atleast_2d(sample).T
+    nbin = np.empty(2, int)  
+    edges = 2*[None]    
+    bins = 2*[bins]    
     
     # Create edge arrays
-    for i in _range(D):
+    for i in _range(2):
         if np.ndim(bins[i]) == 0:
             if bins[i] < 1:
                 raise ValueError(
@@ -97,19 +70,19 @@ def histogramddErnie(sample, bins=10):
                 '`bins[{}]` must be a scalar or 1d array'.format(i))
 
         nbin[i] = len(edges[i]) + 1  # includes an outlier on each end
-        dedges[i] = np.diff(edges[i])
+        
 
     # Compute the bin number each sample falls into.
     Ncount = tuple(
         # avoid np.digitize to work around gh-11022
         np.searchsorted(edges[i], sample[:, i], side='right')
-        for i in _range(D)
+        for i in _range(2)
     )
 
     # Using digitize, values that fall on an edge are put in the right bin.
     # For the rightmost bin, we want values equal to the right edge to be
     # counted in the last bin, and not as an outlier.
-    for i in _range(D):
+    for i in _range(2):
         # Find which points are on the rightmost edge.
         on_edge = (sample[:, i] == edges[i][-1])
         # Shift these points one bin to the left.
@@ -130,7 +103,7 @@ def histogramddErnie(sample, bins=10):
     hist = hist.astype(float, casting='safe')
 
     # Remove outliers (indices 0 and -1 for each dimension).
-    core = D*(slice(1, -1),)
+    core = 2*(slice(1, -1),)
     hist = hist[core]
 
     if (hist.shape != nbin - 2).any():
